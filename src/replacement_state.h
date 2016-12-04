@@ -36,6 +36,7 @@ typedef enum
 // Replacement State Per Cache Line
 typedef struct
 {
+    UINT32  BIPstackposition;
     UINT32  LRUstackposition;
     UINT32  NumOfRef;
     // CONTESTANTS: Add extra state per cache line here
@@ -56,6 +57,7 @@ public:
     UINT32 replPolicy;
 
     COUNTER mytimer;  // tracks # of references to the cache
+    INT32 saturateCounter;
 
     // CONTESTANTS:  Add extra state for cache here
     std::default_random_engine generator;
