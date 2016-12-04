@@ -1,0 +1,6 @@
+policy = 2
+core 0: 2.6901 IPC
+core 0: 3.5494 IPC
+core 0: 1.1098 IPC
+core 0: 3.1707 IPC
+core 0: 3.7107 IPC

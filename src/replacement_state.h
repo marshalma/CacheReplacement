@@ -21,6 +21,7 @@
 #include "utils.h"
 #include "crc_cache_defs.h"
 #include <iostream>
+#include <random>
 
 using namespace std;
 
@@ -36,7 +37,7 @@ typedef enum
 typedef struct
 {
     UINT32  LRUstackposition;
-
+    UINT32  NumOfRef;
     // CONTESTANTS: Add extra state per cache line here
 
 } LINE_REPLACEMENT_STATE;
@@ -57,6 +58,8 @@ public:
     COUNTER mytimer;  // tracks # of references to the cache
 
     // CONTESTANTS:  Add extra state for cache here
+    std::default_random_engine generator;
+    std::uniform_real_distribution<double> distribution;
 
   public:
     ostream & PrintStats(ostream &out);

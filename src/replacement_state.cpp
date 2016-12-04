@@ -49,7 +49,7 @@ CACHE_REPLACEMENT_STATE::CACHE_REPLACEMENT_STATE( UINT32 _sets, UINT32 _assoc, U
     replPolicy = _pol;
 
     mytimer    = 0;
-
+    distribution = std::uniform_real_distribution<double>(0.0, 1.0);
     InitReplacementState();
 }
 
@@ -97,6 +97,7 @@ void CACHE_REPLACEMENT_STATE::InitReplacementState()
         {
             // initialize stack position (for true LRU)
             repl[ setIndex ][ way ].LRUstackposition = way;
+            repl[ setIndex ][ way ].NumOfRef = 0;
         }
     }
 
@@ -241,12 +242,37 @@ void CACHE_REPLACEMENT_STATE::UpdateLRU( UINT32 setIndex, INT32 updateWayID )
 }
 
 INT32 CACHE_REPLACEMENT_STATE::Get_My_Victim( UINT32 setIndex ) {
-	// return first way always
-	return 0;
+  #define THRES 0.01
+  LINE_REPLACEMENT_STATE *replSet = repl[ setIndex ];
+  double random_number = distribution(generator);
+  // Normal LIP
+  INT32   lruWay   = 0;
+  for(UINT32 way=0; way<assoc; way++) {
+    if (replSet[way].LRUstackposition == (assoc-1)) {
+      lruWay = way;
+      break;
+    }
+  }
+  replSet[lruWay].NumOfRef = 0;
+  if (random_number < THRES) replSet[lruWay].NumOfRef = 1;
+  return lruWay;
 }
 
 void CACHE_REPLACEMENT_STATE::UpdateMyPolicy( UINT32 setIndex, INT32 updateWayID ) {
 	// do nothing
+
+  LINE_REPLACEMENT_STATE *replSet = repl[ setIndex ];
+  if (repl[setIndex][updateWayID].LRUstackposition == assoc-1) {
+    if (repl[setIndex][updateWayID].NumOfRef == 0){
+      repl[setIndex][updateWayID].NumOfRef = 1;
+      return;
+    }
+    for (int i = 0; i < assoc; i++) {
+      if (i == updateWayID) continue;
+      repl[setIndex][i].LRUstackposition++;
+    }
+    repl[setIndex][updateWayID].LRUstackposition = 0;
+  }
 }
 
 CACHE_REPLACEMENT_STATE::~CACHE_REPLACEMENT_STATE (void) {
