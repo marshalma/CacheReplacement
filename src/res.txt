@@ -1,0 +1,21 @@
+opened "../traces/400.perlbench-50B.trace"
+LLC 4194304 bytes, 16 assoc
+icount = 100000266, cycles = 100000266
+icount = 200901096, cycles = 200901096
+icount = 301780626, cycles = 301780626
+icount = 401780709, cycles = 401780709
+icount = 501782269, cycles = 500957555
+icount = 604098892, cycles = 565514020
+icount = 705994617, cycles = 594451248
+icount = 806707434, cycles = 623015097
+icount = 906709659, cycles = 653896838
+icount = 1006709680, cycles = 703478087
+thread 0 reached 1006709680 instructions; stopping
+==========================================================
+=========== Replacement Policy Statistics ================
+==========================================================
+hostname shuo
+L3 instructions: core 0: 604928844 
+L3 misses: core 0: 199503 
+L3 mpki: core 0: 0.3298 
+core 0: 2.5802 IPC
