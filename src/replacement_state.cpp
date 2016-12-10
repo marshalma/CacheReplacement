@@ -11,6 +11,8 @@ using namespace std;
 
 #include "replacement_state.h"
 
+#define SET_DUEL_PROPORTION 1024
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -127,7 +129,7 @@ INT32 CACHE_REPLACEMENT_STATE::GetVictimInSet( UINT32 tid, UINT32 setIndex, cons
     else if( replPolicy == CRC_REPL_CONTESTANT )
     {
         // Contestants:  ADD YOUR VICTIM SELECTION FUNCTION HERE
-        if (setIndex < numsets / 1024) {
+        if (setIndex < numsets / SET_DUEL_PROPORTION) {
           if (setIndex % 2 == 0) return Get_LRU_Victim(setIndex);
           else return Get_My_Victim( setIndex );
         }
@@ -169,24 +171,20 @@ void CACHE_REPLACEMENT_STATE::UpdateReplacementState(
     }
     else if( replPolicy == CRC_REPL_CONTESTANT )
     {
-      cout << saturateCounter << endl;
       if (!cacheHit) {
-        if (setIndex < numsets / 1024) {
+        if (setIndex < numsets / SET_DUEL_PROPORTION) {
           saturateCounter += (setIndex % 2 == 0) ? -1 : 1;
         }
         if (saturateCounter > 1024) saturateCounter = 1024;
         if (saturateCounter < -1024) saturateCounter = -1024;
         // saturating characteristics
       }
-      if (setIndex < numsets / 1024) {
+      if (setIndex < numsets / SET_DUEL_PROPORTION) {
         if (setIndex % 2 == 0) return UpdateLRU( setIndex, updateWayID );
         else return UpdateMyPolicy( setIndex, updateWayID );
       }
       if (saturateCounter > 0) return UpdateLRU( setIndex, updateWayID );
       else return UpdateMyPolicy( setIndex, updateWayID );
-        // Contestants:  ADD YOUR UPDATE REPLACEMENT STATE FUNCTION HERE
-        // Feel free to use any of the input parameters to make
-        // updates to your replacement policy
     }
 }
 
@@ -220,7 +218,6 @@ INT32 CACHE_REPLACEMENT_STATE::Get_LRU_Victim( UINT32 setIndex )
 	}
 
 	// return lru way
-  // cout << repl[setIndex][lruWay].LRUstackposition << endl;
 	return lruWay;
 }
 
@@ -262,11 +259,9 @@ void CACHE_REPLACEMENT_STATE::UpdateLRU( UINT32 setIndex, INT32 updateWayID )
 }
 
 INT32 CACHE_REPLACEMENT_STATE::Get_My_Victim( UINT32 setIndex ) {
-  #define THRES 1.0/32.0
   LINE_REPLACEMENT_STATE *replSet = repl[ setIndex ];
-  double random_number = distribution(generator);
   // Normal LIP
-  INT32   lruWay   = 0;
+  INT32 lruWay = 0;
   for(UINT32 way=0; way<assoc; way++) {
     if (replSet[way].LRUstackposition == (assoc-1)) {
       lruWay = way;
@@ -274,12 +269,10 @@ INT32 CACHE_REPLACEMENT_STATE::Get_My_Victim( UINT32 setIndex ) {
     }
   }
   replSet[lruWay].NumOfRef = 0;
-  if (random_number < THRES) replSet[lruWay].NumOfRef = 1;
   return lruWay;
 }
 
 void CACHE_REPLACEMENT_STATE::UpdateMyPolicy( UINT32 setIndex, INT32 updateWayID ) {
-	// do nothing
 
   LINE_REPLACEMENT_STATE *replSet = repl[ setIndex ];
   if (repl[setIndex][updateWayID].LRUstackposition == assoc-1) {
